@@ -1,0 +1,6 @@
+# this was created by an AI agent
+project_id = "rockyforums"
+
+[functions.frontend-assets]
+verify_jwt = false
+entrypoint = "./functions/frontend-assets/index.js"

@@ -1,0 +1,27 @@
+{
+  "name": "rockyforums-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env.local server/main.mjs",
+    "dev": "node --watch --env-file-if-exists=.env.local server/main.mjs",
+    "test": "node --test test/*.test.mjs",
+    "lint": "node scripts/check-sources.mjs",
+    "check:public": "node scripts/check-public-files.mjs",
+    "frontend:package": "node scripts/package-frontend.mjs",
+    "frontend:publish": "node --env-file-if-exists=.env.local scripts/publish-frontend.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "pages:build": "node scripts/build-pages.mjs",
+    "test:pages": "playwright test --config=test/pages.playwright.config.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "prettier": "3.6.2"
+  }
+}

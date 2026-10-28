@@ -1,0 +1,23 @@
+/* this was created by an AI agent */
+.delivery-status {
+  max-width: 36rem;
+  margin: 12vh auto;
+  padding: 1.5rem;
+  color: #26313a;
+  font:
+    1rem/1.6 Arial,
+    Helvetica,
+    sans-serif;
+}
+.delivery-status h1 {
+  font-size: 1.35rem;
+}
+.delivery-status button {
+  padding: 0.6rem 1rem;
+  border: 1px solid #234f77;
+  border-radius: 2px;
+  background: #234f77;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}

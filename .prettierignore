@@ -1,0 +1,14 @@
+# this was created by an AI agent
+
+node_modules/
+dist/
+coverage/
+frontend/
+playwright-report/
+test-results/
+package-lock.json
+AI disclosure.md
+
+# Preserve the user-owned legacy placeholder unchanged.
+Index.html
+index.html

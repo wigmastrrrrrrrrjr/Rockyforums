@@ -1,0 +1,16 @@
+# this was created by an AI agent
+
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.local
+*.tsbuildinfo
+playwright-report/
+test-results/
+.DS_Store
+
+# Proprietary frontend source and generated release artifacts are not backend source.
+/frontend/
