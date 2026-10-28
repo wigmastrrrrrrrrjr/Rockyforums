@@ -11,6 +11,7 @@ const rootFiles = new Set([
   '.prettierrc.json',
   'Dockerfile',
   'Index.html',
+  'index.html',
   'LICENSE',
   'LICENSE_SCOPE.md',
   'AI disclosure.md',

@@ -4,7 +4,7 @@ Public URL: **https://wigmastrrrrrrrrjr.github.io/Rockyforums/**
 
 ## What is hosted where
 
-GitHub Pages cannot execute the Node server. It hosts only a small, open-source **delivery adapter** from `server/pages/`: a loading document, integrity-checked document reader, module loader and status styles. The Pages artifact contains no application bundle, editable frontend source, private environment or administrator key. The root `Index.html` is the user's retained placeholder and is not deployed.
+GitHub Pages cannot execute the Node server. It hosts only a small, open-source **delivery adapter** from `server/pages/`: a loading document, integrity-checked document reader, module loader and status styles. The Pages artifact contains no application bundle, editable frontend source, private environment or administrator key. The root `index.html` is the user's retained placeholder and is not deployed.
 
 The actual application HTML, CSS, JavaScript and notices stay in the dedicated database:
 
