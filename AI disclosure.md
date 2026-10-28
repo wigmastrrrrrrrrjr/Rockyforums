@@ -1,1 +1,1 @@
-I do use AI, but all of its code goes through heavy review, and anything insecure is fixed by a human. Sensitive code, like APIs, gets the most scrutiny. AI won't replace my work: I write some myself, and AI only handles a small part of the codebase.
+I do use AI, but all of its code goes through heavy review, and anything insecure is fixed by a human. Sensitive code, like APIs, gets the most scrutiny. AI won't replace my work: I write some myself, and AI only handles a part of the codebase.
