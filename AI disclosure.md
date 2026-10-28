@@ -1,3 +1,1 @@
-I do use AI, but the code goes through heavy review, and code that is not secure will be fixed by a human 
-Things like API code will be heavily reviewed. AI is not going to replace my code; things will be written by me, like HTML, CSS and JS 
-The AI is not going to handle all of the code 
+I do use AI, but all of its code goes through heavy review, and anything insecure is fixed by a human. Sensitive code, like APIs, gets the most scrutiny. AI won't replace my work: I write some myself, and AI only handles a small part of the codebase.
