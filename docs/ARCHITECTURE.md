@@ -2,18 +2,24 @@
 
 ## Scope
 
-An account-only starting point, not a simulated forum. Available routes:
+A real public forum with no simulated users, posts or activity. Available routes:
 
-- `/signup` (also the `/` default): email/password registration with a unique username and explicit terms acceptance.
+- `/`, `/latest`, `/c/:slug`: categories, latest/category discussions and title search.
+- `/thread/:id`, `/new/:slug?`: reading, replies, author edits/deletion and thread creation.
+- `/owner`: private native-authenticator-protected owner tools.
+
+- `/signup`: email/password registration with a unique username and explicit terms acceptance.
 - `/verify-email`: a paused-policy notice for now; the retained eight-digit confirmation/resend form is shown only when verification is enabled.
 - `/login`: email/password authentication. No email-code or magic-link step while verification is paused.
 - `/welcome`: authenticated account summary, logout, and a current-terms gate.
 - `/terms` and `/privacy`: current published documents.
 - `/terms/:version` and `/privacy/:version`: permanent historical documents.
 
-Threads, replies, messaging, uploads, OAuth, password recovery, account editing, and self-service deletion are deliberately not implemented or advertised as working features.
+Messaging, uploads, OAuth, password recovery, account editing, and self-service account deletion remain unavailable. Owner account removal and forum author deletion are separate implemented capabilities.
 
-## Layout
+## Original account-application layout
+
+The original editable React workspace is no longer present; this section documents the account application retained in immutable compiled assets, not recovered source. The new ignored `frontend/owner/src/` contains small DOM/authenticator/owner/forum modules and styles, with build and isolated browser tests beside it.
 
 ```text
 server/                   Public read-only asset gateway; Node runtime only
@@ -88,8 +94,14 @@ Forms have real labels, correct autocomplete values, associated inline errors, a
 
 ## Email delivery and legacy accounts
 
-Email confirmation is intentionally disabled on the dedicated project for this release. Auto-confirmation enables signup but is not email ownership proof or bot protection. SMTP and the hosted numeric-code template remain unconfigured. The checked-in `supabase/templates/confirmation.html` is retained for future setup. Do not enable the frontend flag alone, or merely enable Supabase confirmation. Existing auto-confirmed accounts need a deliberate re-verification strategy; older pending accounts need individual operator handling, not silent bulk confirmation. Current terms/privacy 1.2 describe this pause; versions 1.0 and 1.1 remain immutable history.
+Email confirmation is intentionally disabled on the dedicated project for this release. Auto-confirmation enables signup but is not email ownership proof or bot protection. SMTP and the hosted numeric-code template remain unconfigured. The checked-in `supabase/templates/confirmation.html` is retained for future setup. Do not enable the frontend flag alone, or merely enable Supabase confirmation. Existing auto-confirmed accounts need a deliberate re-verification strategy; older pending accounts need individual operator handling, not silent bulk confirmation. Current terms/privacy 1.4 preserve the verification pause and disclose public discussions and protected owner moderation. All earlier versions remain immutable history.
 
 ## Validation and deployment limitations
 
 See [SECURITY.md](../SECURITY.md) for operational prerequisites and the distinction between frontend password guidance and the provider's current password policy. See [LEGAL_UPDATES.md](LEGAL_UPDATES.md) before adding features. Supabase connection values prefixed `VITE_` are public; secret/service-role keys must never be added to them.
+
+## Owner and forum additions
+
+The private additive application routes the forum and owner paths above to new modules. Signup/login/legal/account routes retain the original compiled application and the shared native Auth storage key. Source backups cover the new application only. Styles keep the approved compact gray/blue appearance.
+
+See [OWNER_SECURITY.md](OWNER_SECURITY.md) for UUID/native-session/TOTP authorization and [FORUM.md](FORUM.md) for the private-table/public-RPC contract, maintenance switch, deletion cascades and tests. Runtime assets remain public; editable source archives have a separate operator-only RPC and cannot be retrieved with owner MFA.

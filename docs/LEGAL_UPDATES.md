@@ -2,9 +2,9 @@
 
 Published documents live in Supabase, not hardcoded UI fallbacks. Their text, identity, version, kind, and effective time are immutable. Only the current-version marker can change. Do not edit an already-applied migration or rewrite published history.
 
-The current terms and privacy notice are a practical starting point for an **account-only development release**, not lawyer-reviewed production documents. Before inviting the public, identify the operator, publish a real private support/privacy contact, review local age/consumer/privacy requirements, and publish a replacement version. Never direct people to post private account information in a GitHub issue.
+The current terms and privacy notice are a practical starting point for a **development release with public discussions and owner moderation**, not lawyer-reviewed production documents. Before inviting the public, identify the operator, publish a real private support/privacy contact, review local age/consumer/privacy requirements, and publish a replacement version. Never direct people to post private account information in a GitHub issue.
 
-Version 1.1 added required email-code verification without rewriting 1.0. Current version **1.2** temporarily pauses that requirement and discloses unverified signup while retaining both older versions. See `202610280005_pause_email_verification.sql`. When verification returns, publish another version rather than editing 1.1 or 1.2.
+Version 1.1 added required email-code verification without rewriting 1.0. Version **1.2** temporarily paused that requirement and discloses unverified signup while retaining both older versions. See `202610280005_pause_email_verification.sql`. Version **1.3** added exclusive authenticator-protected owner tools and limited security retention. Current **1.4** adds public posts, author/owner removal, thread/account cascades, operational receipts and their retention. Earlier versions remain readable. When verification returns, publish another version; do not edit history.
 
 ## A feature release that changes the rules
 
@@ -28,7 +28,7 @@ update public.legal_documents
 insert into public.legal_documents
   (id, kind, version, title, effective_at, is_current, sections)
 values (
-  'terms-1.3', 'terms', '1.3', 'Terms of Service', now(), true,
+  'terms-<new-version>', 'terms', '<new-version>', 'Terms of Service', now(), true,
   '[{"id":"changes","title":"What changed","paragraphs":["Explain the new feature and its rules here."]}]'::jsonb
 );
 commit;
@@ -39,3 +39,5 @@ The returning-member RPC accepts **only** the active version. It appends an acce
 ## Retention
 
 Deleting an Auth account cascades to its profile and consent history in the live database. Published legal text remains. Provider logs and backups have independent retention. If future legal requirements call for retaining identifiable consent after account deletion, design and disclose a lawful, time-limited retention mechanism before changing this behavior.
+
+Public forum content is retained while its account/thread exists unless removed. Deleting a thread removes all replies, including other authors’ replies; deleting an account removes its authored threads/replies and their descendant replies. Owner/security audits and duplicate-operation receipts are pruned after approximately 90 days, minute-rate buckets after approximately three days, by a daily job. Provider logs/backups and outside copies are separate. Source/runtime release archives are immutable deployment records, not copies of user posts.
