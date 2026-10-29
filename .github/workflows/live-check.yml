@@ -1,0 +1,36 @@
+# this was created by an AI agent
+# Independent, read-only network smoke; never deploys Pages or publishes the frontend.
+name: Read-only live forum check
+on:
+  push:
+    paths:
+      - '.github/workflows/live-check.yml'
+      - 'scripts/check-pages-live.mjs'
+  pull_request:
+    paths:
+      - '.github/workflows/live-check.yml'
+      - 'scripts/check-pages-live.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Check published UI without account or forum writes
+        run: node scripts/check-pages-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-live-layout
+          path: test-results/pages-live-*.png
+          retention-days: 3
+          if-no-files-found: ignore

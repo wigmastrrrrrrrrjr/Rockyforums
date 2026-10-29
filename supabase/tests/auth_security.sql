@@ -5,13 +5,21 @@
 begin;
 select set_config('rockytests.user_one', gen_random_uuid()::text, true);
 select set_config('rockytests.user_two', gen_random_uuid()::text, true);
+select set_config('rockytests.session_one', gen_random_uuid()::text, true);
+select set_config('rockytests.session_two', gen_random_uuid()::text, true);
+select set_config('rockytests.terms_version', (select version from public.legal_documents where kind='terms' and is_current), true);
+select set_config('rockytests.terms_id', (select id from public.legal_documents where kind='terms' and is_current), true);
 
 insert into auth.users (id, email, raw_user_meta_data)
 values
   (current_setting('rockytests.user_one')::uuid, 'one-' || current_setting('rockytests.user_one') || '@example.invalid',
-   jsonb_build_object('username', 'Case_' || left(current_setting('rockytests.user_one'), 8), 'accepted_terms', true, 'terms_version', '1.2')),
+   jsonb_build_object('username', 'Case_' || left(current_setting('rockytests.user_one'), 8), 'accepted_terms', true, 'terms_version', current_setting('rockytests.terms_version'))),
   (current_setting('rockytests.user_two')::uuid, 'two-' || current_setting('rockytests.user_two') || '@example.invalid',
-   jsonb_build_object('username', 'other_' || left(current_setting('rockytests.user_two'), 8), 'accepted_terms', true, 'terms_version', '1.2'));
+   jsonb_build_object('username', 'other_' || left(current_setting('rockytests.user_two'), 8), 'accepted_terms', true, 'terms_version', current_setting('rockytests.terms_version')));
+
+insert into auth.sessions(id,user_id,aal,created_at,updated_at) values
+  (current_setting('rockytests.session_one')::uuid,current_setting('rockytests.user_one')::uuid,'aal1',now(),now()),
+  (current_setting('rockytests.session_two')::uuid,current_setting('rockytests.user_two')::uuid,'aal1',now(),now());
 
 do $$
 declare
@@ -22,7 +30,7 @@ begin
   if fixture_username is null or fixture_username <> lower(fixture_username) then
     raise exception 'FAIL: profile missing or username not normalized';
   end if;
-  if not exists (select 1 from public.terms_acceptances where user_id = fixture_id and document_id = 'terms-1.2' and accepted_at = now()) then
+  if not exists (select 1 from public.terms_acceptances where user_id = fixture_id and document_id = current_setting('rockytests.terms_id') and accepted_at = now()) then
     raise exception 'FAIL: atomic, server-timestamped consent missing';
   end if;
   if exists (
@@ -31,7 +39,7 @@ begin
   ) then raise exception 'FAIL: RLS not enabled'; end if;
 
   begin
-    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), jsonb_build_object('username', fixture_username, 'accepted_terms', true, 'terms_version', '1.2'));
+    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), jsonb_build_object('username', fixture_username, 'accepted_terms', true, 'terms_version', current_setting('rockytests.terms_version')));
     raise exception 'FAIL: duplicate username accepted';
   exception when unique_violation then null;
   end;
@@ -42,13 +50,13 @@ begin
     if sqlerrm <> 'Explicit terms acceptance is required' then raise; end if;
   end;
   begin
-    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), '{"username":"string_consent","accepted_terms":"true","terms_version":"1.2"}'::jsonb);
+    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), jsonb_build_object('username','string_consent','accepted_terms','true','terms_version',current_setting('rockytests.terms_version')));
     raise exception 'FAIL: string consent treated as a boolean';
   exception when raise_exception then
     if sqlerrm <> 'Explicit terms acceptance is required' then raise; end if;
   end;
   begin
-    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), '{"username":123,"accepted_terms":true,"terms_version":"1.2"}'::jsonb);
+    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), jsonb_build_object('username',123,'accepted_terms',true,'terms_version',current_setting('rockytests.terms_version')));
     raise exception 'FAIL: non-string username accepted';
   exception when raise_exception then
     if sqlerrm <> 'A text username is required' then raise; end if;
@@ -60,17 +68,17 @@ begin
     if sqlerrm <> 'The current terms version must be accepted' then raise; end if;
   end;
   begin
-    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), '{"username":"admin","accepted_terms":true,"terms_version":"1.2"}'::jsonb);
+    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), jsonb_build_object('username','admin','accepted_terms',true,'terms_version',current_setting('rockytests.terms_version')));
     raise exception 'FAIL: reserved username accepted';
   exception when check_violation then null;
   end;
   begin
-    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), '{"username":"bad name","accepted_terms":true,"terms_version":"1.2"}'::jsonb);
+    insert into auth.users (id, raw_user_meta_data) values (gen_random_uuid(), jsonb_build_object('username','bad name','accepted_terms',true,'terms_version',current_setting('rockytests.terms_version')));
     raise exception 'FAIL: malformed username accepted';
   exception when check_violation then null;
   end;
   begin
-    update public.legal_documents set title = 'Changed history' where id = 'terms-1.2';
+    update public.legal_documents set title = 'Changed history' where id = current_setting('rockytests.terms_id');
     raise exception 'FAIL: legal history was editable';
   exception when raise_exception then
     if sqlerrm <> 'Publish a new legal version instead of editing history' then raise; end if;
@@ -95,13 +103,14 @@ $$;
 reset role;
 
 select set_config('request.jwt.claim.sub', current_setting('rockytests.user_one'), true);
+select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('rockytests.user_one'),'session_id',current_setting('rockytests.session_one'),'aal','aal1','role','authenticated')::text,true);
 set local role authenticated;
 do $$
 begin
   if (select count(*) from public.profiles) <> 1 then raise exception 'FAIL: cross-account profile read'; end if;
   if (select count(*) from public.terms_acceptances) <> 1 then raise exception 'FAIL: cross-account consent read'; end if;
   if not public.has_accepted_current_terms() then raise exception 'FAIL: valid current acceptance not recognized'; end if;
-  perform public.accept_current_terms('1.2');
+  perform public.accept_current_terms(current_setting('rockytests.terms_version'));
   if (select count(*) from public.terms_acceptances) <> 1 then raise exception 'FAIL: acceptance is not idempotent'; end if;
   if has_table_privilege(current_user, 'public.profiles', 'UPDATE')
     or has_table_privilege(current_user, 'public.terms_acceptances', 'INSERT')
@@ -114,16 +123,16 @@ $$;
 reset role;
 
 -- A future feature release rotates the current version, never edits existing legal text.
-update public.legal_documents set is_current = false where id = 'terms-1.2';
+update public.legal_documents set is_current = false where id = current_setting('rockytests.terms_id');
 insert into public.legal_documents (id, kind, version, title, effective_at, sections, is_current)
 select 'terms-test-next', kind, 'test-next', title, effective_at, sections, true
-  from public.legal_documents where id = 'terms-1.2';
+  from public.legal_documents where id = current_setting('rockytests.terms_id');
 set local role authenticated;
 do $$
 begin
   if public.has_accepted_current_terms() then raise exception 'FAIL: old consent authorized new terms'; end if;
   begin
-    perform public.accept_current_terms('1.2');
+    perform public.accept_current_terms(current_setting('rockytests.terms_version'));
     raise exception 'FAIL: stale acceptance RPC succeeded';
   exception when raise_exception then
     if sqlerrm <> 'The terms have changed. Read the current version before accepting.' then raise; end if;
@@ -139,6 +148,7 @@ end;
 $$;
 reset role;
 select set_config('request.jwt.claim.sub', current_setting('rockytests.user_two'), true);
+select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('rockytests.user_two'),'session_id',current_setting('rockytests.session_two'),'aal','aal1','role','authenticated')::text,true);
 set local role authenticated;
 do $$
 begin
