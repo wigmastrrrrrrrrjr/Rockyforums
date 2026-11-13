@@ -8,6 +8,8 @@ Supabase stores compiled runtime assets in `frontend_private.releases` and `fron
 
 ## Publish
 
+The original full-workspace pipeline below remains supported when that private workspace is available. For the current owner/forum addon, use the additive release section below instead.
+
 1. Make the UI change in the private workspace. Preserve the shared layout and account/legal boundaries; run its type, lint, unit and browser checks.
 2. Choose a new lowercase release ID, 6–80 characters using letters, digits and hyphens. Never reuse an ID with different bytes.
 3. Build with `FRONTEND_RELEASE_ID=<id> npm run build` from `frontend/`. This gives all asset URLs a `/_frontend/<id>/` prefix; SPA routes remain `/signup`, `/login`, etc.
@@ -53,4 +55,16 @@ The destination checked the approved package checksum before transactional stagi
 
 A separate read-only smoke test used only the public publishable key through the real REST endpoint and verified the active HTML plus all seven asset checksums. Its temporary function and HTTP extension were removed.
 
-The private editable workspace is absent after resume. The compiled database release remains intact. The Pages-compatible successor is `ui-20261028-pages-1`, with package SHA-256 `d738a5eafbb91e37fc9a5793735bbe96193bc80644b376b8fecc2f2f0516c8db`. It adds only router-base support, preserving the UI and auth/legal behavior. See [GITHUB_PAGES.md](GITHUB_PAGES.md) for deployment, compatible rollback targets and the separate live browser smoke check.
+The original editable React workspace is absent after resume. New owner/forum source is a separate additive application, not a recovery of that original source. The compiled database release remains intact. The Pages-compatible successor is `ui-20261028-pages-1`, with package SHA-256 `d738a5eafbb91e37fc9a5793735bbe96193bc80644b376b8fecc2f2f0516c8db`. It adds only router-base support, preserving the UI and auth/legal behavior. See [GITHUB_PAGES.md](GITHUB_PAGES.md) for deployment, compatible rollback targets and the separate live browser smoke check.
+
+## Additive owner/forum releases and private source recovery
+
+The ignored `frontend/owner/` build now emits `rockyforums.frontend.addon.v1`, not the full-package format accepted by the original packaging CLI. Its build/test commands are `npm ci`, `npm test`, then `FRONTEND_RELEASE_ID=<new-id> npm run build` in that private workspace. Do not pass an additive manifest to the full-package publisher. Freeze and retain its exact manifest before rebuilding.
+
+A trusted operator assembles a full package using the immutable `ui-20261028-pages-1` database assets: retain all six non-HTML assets byte-for-byte, replace the single module entry in a new HTML document, update its release prefix, remove the unnecessary legacy vendor preload, add the new CSS/dependency-license link, and append the verified addon assets. The private entry bridges legacy React soft-navigation into the new forum/owner routes and updates obsolete feature-availability copy without editing the frozen base bytes. Run the resulting complete asset array through `stage_frontend_release`, not direct browser table writes.
+
+Store the separate SHA-256-checked gzip source through `backup_frontend_source(release_id, archive_base64, sha256)` before activation. `read_frontend_source(release_id)` is service-role-only; site-owner AAL2 cannot use it. Validate its format/hash, decompress it with a bounded output size, and recover `files` from the `rockyforums.private-source.v1` JSON into a fresh **private** directory. Reject absolute/traversal/symlink paths, retain dependency notices/lockfile, and never overwrite a workspace blindly. The archive includes new owner/forum modules, tests, build script, lockfile and private README—not node_modules, environments, browser state, actual MFA keys or original React source. Runtime asset delivery cannot read these archives. Updates/deletion of stored archives are rejected. Keep an independent secured backup too.
+
+Retained owner release: `ui-20261029-owner-1`, 12 assets / 890,400 bytes; its 27,647-byte source SHA-256 is `9d4eac3dd1c20ff789a5b9e794fcd1b05e825936b0dea39012f9d9f9cb3d943f`. The published forum successor is `ui-20261029-forum-1`, 15 assets / 919,798 bytes; its 39,526-byte source SHA-256 is `3dbbdd9852a2b922f6ab62316e53d08e3127ae66d081699172e0118a62882db3` (19 files). Both retained archives were read back, hash-verified and successfully decompressed. Pause member posting before rolling back to an owner-only UI. Legal 1.4 stays immutable even during a UI rollback.
+
+The sandbox transfer uses only an authenticated encrypted envelope in an unattached Git object, never plaintext frontend source in Git history. The destination verifies envelope/manifest hashes and retains the private source separately; activation remains an explicit trusted-database operation. Temporary transfer functions and HTTP extensions are removed afterward.

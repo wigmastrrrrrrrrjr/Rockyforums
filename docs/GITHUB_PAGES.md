@@ -11,7 +11,7 @@ The actual application HTML, CSS, JavaScript and notices stay in the dedicated d
 1. On each full page load, the browser calls the narrow public `read_frontend_asset` RPC for the active `index.html`, explicitly without caching that lookup.
 2. The adapter validates the response and SHA-256, adds the `/Rockyforums` router base, and resolves versioned resources through the public `frontend-assets` Edge Function.
 3. That function uses **only the runtime anonymous key**, not a service-role key. It validates published asset metadata, MIME, decoded size and SHA-256 before serving bytes with CORS, `nosniff`, ETags and immutable caching.
-4. The application uses the existing Supabase Auth, profile, consent and legal APIs. There are no account mocks in the deployed site.
+4. The application uses Supabase Auth, profile, consent, legal and public forum APIs. There are no account mocks in the deployed site.
 
 The application frontend remains proprietary; generic delivery infrastructure is part of the MIT backend. Browser-delivered compiled code is necessarily downloadable. Existing MIT grants and third-party licenses remain intact.
 
@@ -36,7 +36,7 @@ Publish a new compatible application release to the database using the existing 
 
 **First Pages-compatible release:** `ui-20261028-pages-1`. It preserves the prior UI and adds only a native `BrowserRouter` base-path option and a `rockyforums-routing=base-path-v1` document marker. The original `ui-20261028-1` is retained for the root-mounted Node gateway, but predates project-path support; do not select that Node-only release as a Pages rollback target. Subsequent Pages rollbacks must select a Pages-compatible release.
 
-The original editable workspace is absent from this resumed checkout. The existing compiled release was checksum-verified and adapted without changing its forms, legal/auth behavior or styling; this does **not** recreate the editable TypeScript source. Keep/restore a separately secured private source backup before future application development. Future private builds must:
+The original editable React workspace is absent from this resumed checkout. The new private owner/forum addon has separate operator-only source archives. The existing compiled release was checksum-verified and adapted without changing its forms, legal/auth behavior or styling; this does **not** recreate the editable TypeScript source. Keep/restore a separately secured private source backup before future application development. Future private builds must:
 
 - Keep the router base configurable from `meta[name="rockyforums-base-path"]`, defaulting to `/`.
 - Include `<meta name="rockyforums-routing" content="base-path-v1" />`.
@@ -62,4 +62,4 @@ npx playwright install --with-deps chromium
 npm run test:pages
 ```
 
-These tests use generic delivery fixtures, not proprietary UI source. The post-deploy `scripts/check-pages-live.mjs` check uses a real browser against the public site: signup screen, exact announcement, login navigation, a fresh historical legal link and mobile overflow. It creates no accounts, signs in as nobody, and does not claim a completed real authentication smoke test.
+These tests use generic delivery fixtures, not proprietary UI source. The post-deploy `scripts/check-pages-live.mjs` check uses a real browser against the public site: forum/category navigation, the exact announcement, preserved signup/login forms, historical/current legal links, the guest owner gate and mobile overflow. It actively blocks Auth writes and non-reader RPCs, creates no accounts/posts, signs in as nobody, and does not claim a completed real authentication smoke test. The independent `live-check.yml` workflow also runs this read-only check when its script changes or on manual dispatch; it has no deployment or publisher permissions.
