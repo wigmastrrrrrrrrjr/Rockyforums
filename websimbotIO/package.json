@@ -1,0 +1,20 @@
+{
+  "name": "websimbot-io",
+  "private": true,
+  "version": "1.0.0",
+  "description": "websimbotIO - a fan-made multiplayer sketch-style .io shooter. Movement client-side, verified in Postgres.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0"
+  },
+  "devDependencies": {
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/cabin-sketch": "^5.3.0",
+    "vite": "^8.3.8"
+  }
+}

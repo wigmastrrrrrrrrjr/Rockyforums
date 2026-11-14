@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4f0e6" />
+    <meta name="description" content="websimbotIO - a fan-made multiplayer sketch shooter. Walk around. Shoot people. Get bigger." />
+    <title>websimbotIO</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div id="paper" aria-hidden="true"></div>
+    <canvas id="game" aria-label="Game arena"></canvas>
+
+    <!-- ------------------------------------------------------------- HUD -->
+    <div id="hud" class="hidden">
+      <div id="plate">
+        <div class="row">
+          <span id="hud-call">you</span>
+          <span id="hud-kd">0k / 0d</span>
+        </div>
+        <div id="hp-wrap" class="sketch-box">
+          <div id="hp-bar"></div>
+          <span id="hp-num">100</span>
+        </div>
+        <div id="size-line"><span id="hud-size">size 13</span><span id="hud-ping">— ms</span></div>
+      </div>
+
+      <div id="board" class="sketch-box">
+        <h2>biggest</h2>
+        <ol id="board-list"></ol>
+        <div id="board-foot"><span id="board-mode">solo</span> · <span id="board-count">0</span> in the sketchbook</div>
+      </div>
+
+      <div id="feed"></div>
+      <div id="toast" class="hidden"></div>
+
+      <div id="mobile">
+        <div id="stick-zone"><div id="stick"><div id="stick-nub"></div></div></div>
+        <div id="fire-zone"><button id="fire" aria-label="shoot">pew</button></div>
+      </div>
+
+      <button id="respawn" class="sketch-box hidden">
+        <span class="big">you got scribbled out</span>
+        <span class="small" id="respawn-sub">tap to respawn</span>
+      </button>
+
+      <button id="btn-help" class="corner-btn" aria-label="help">?</button>
+    </div>
+
+    <!-- ---------------------------------------------------------- LOBBY -->
+    <div id="lobby">
+      <div class="sheet">
+        <header>
+          <h1>websimbot<span class="io">IO</span></h1>
+          <p class="sub">walk around · shoot people · the bigger you kill, the bigger you get</p>
+          <div class="scribble"></div>
+        </header>
+
+        <div class="fields">
+          <label class="field">
+            <span>your call</span>
+            <input id="in-call" maxlength="14" placeholder="nobody" autocomplete="off" spellcheck="false" />
+          </label>
+          <label class="field">
+            <span>room</span>
+            <input id="in-room" maxlength="18" placeholder="main" value="main" autocomplete="off" spellcheck="false" />
+          </label>
+        </div>
+
+        <button id="btn-play" class="big-btn">start scribbling</button>
+
+        <p id="lobby-note" class="note"></p>
+
+        <div class="help-grid">
+          <div><b>move</b><span>WASD / arrows / left stick</span></div>
+          <div><b>aim</b><span>mouse / right stick</span></div>
+          <div><b>shoot</b><span>click, space / red button</span></div>
+          <div><b>grow</b><span>kill heavier players for more mass</span></div>
+        </div>
+
+        <footer>
+          <span>fan project · not affiliated with anyone · built on supabase</span>
+          <span id="lobby-ping"></span>
+        </footer>
+      </div>
+    </div>
+
+    <div id="help" class="hidden">
+      <div class="sketch-box help-card">
+        <h2>how it works</h2>
+        <p>
+          Everything you do is drawn by hand, so it looks a bit shaky. That's on purpose.
+        </p>
+        <ul>
+          <li><b>Movement runs on your machine.</b> Your browser simulates the walk and streams it to the database at 10&nbsp;Hz, so it feels instant even on a bad connection.</li>
+          <li><b>The database is the referee.</b> It re-runs the physics, rejects impossible input, and is the only thing allowed to score a kill. If the server disagrees with your frame, you snap back to where it says you are.</li>
+          <li><b>Kills make you fat.</b> You take a share of your victim's mass. Heavy players move slower and hit slightly harder, but they're much easier to hit.</li>
+          <li><b>Bots fill the room.</b> When people leave, the room tops itself back up with sketched bots.</li>
+        </ul>
+        <button id="help-close" class="big-btn">got it</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
