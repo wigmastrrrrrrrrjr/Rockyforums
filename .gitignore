@@ -14,3 +14,7 @@ test-results/
 
 # Proprietary frontend source and generated release artifacts are not backend source.
 /frontend/
+
+# websimbotIO is a self-contained sub-project with its own npm package.
+/websimbotIO/node_modules/
+/websimbotIO/dist/
