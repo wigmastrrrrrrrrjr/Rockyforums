@@ -6,6 +6,8 @@ notebook. Walk around. Shoot people. Every kill makes you bigger and slower.
 Multiplayer runs entirely on Supabase: the renderer is a slow-changing canvas of
 hand-drawn wobbles, and **all of the physics is re-run inside Postgres**.
 
+![The arena](preview-arena.png)
+
 ```
 npm install
 npm run dev      # http://localhost:5173
